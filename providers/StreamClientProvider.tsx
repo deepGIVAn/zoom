@@ -6,10 +6,10 @@ import { StreamVideo, StreamVideoClient } from "@stream-io/video-react-sdk";
 import { ReactNode, useEffect, useState } from "react";
 
 const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
+
 // const userId = "user-id";
 // const token = "authentication-token";
 // const user: User = { id: userId };
-
 // const client = new StreamVideoClient({ apiKey, user, token });
 // const call = client.call("default", "my-first-call");
 // call.join({ create: true });
@@ -17,6 +17,7 @@ const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
 const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
   const [videoClient, setVideoClient] = useState<StreamVideoClient>();
   const { user, isLoaded } = useUser();
+
   useEffect(() => {
     if (!isLoaded || !user) return;
     if (!apiKey) throw new Error("Stream API key missing..");
@@ -28,13 +29,13 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
         name: user?.username || user?.id,
         image: user?.imageUrl,
       },
-      tokenProvider,
+      tokenProvider, // here tokenProvider is server side for security reasons..
     });
 
     setVideoClient(client);
   }, [user, isLoaded]);
 
-  if (!videoClient) return <Loader />;
+  if (!videoClient) return <Loader />; // before the videoClient gets available..
 
   return <StreamVideo client={videoClient}>{children}</StreamVideo>;
 };

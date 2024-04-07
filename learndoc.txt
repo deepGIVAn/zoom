@@ -1,0 +1,14 @@
+created the project from scratch in reference to shadcn ui
+
+npm install @stream-io/video-react-sdk
+// for frontend..
+
+1. Providers
+streamclientProvider.tsx
+
+npm install @stream-io/node-sdk 
+// for backend..
+
+2. Now Create a Call
+
+

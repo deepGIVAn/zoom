@@ -12,7 +12,7 @@ export const tokenProvider = async () => {
   if (!apiKey) throw new Error("No API Key");
   if (!apiSecret) throw new Error("No API Secret");
 
-  const client = new StreamClient(apiKey, apiSecret);
+  const client = new StreamClient(apiKey, apiSecret); // we are receiving from nodeSdk for backend..
 
   const exp = Math.round(new Date().getTime() / 1000) + 60 * 60;
   const issued = Math.floor(Date.now() / 1000) - 60;
