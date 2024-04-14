@@ -5,15 +5,17 @@
 import useGetCall from "@/hooks/useGetCall";
 import { Call, CallRecording } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MeetingCard from "./MeetingCard";
 import Loader from "./Loader";
+import { useToast } from "./ui/use-toast";
 
 const CallList = ({ type }: { type: "upcoming" | "ended" | "recordings" }) => {
   const { callsRecordings, endedCalls, upcomingCalls, isLoading } =
     useGetCall();
   const router = useRouter();
   const [recordings, setRecordings] = useState<CallRecording[]>([]);
+  const { toast } = useToast();
 
   const getCalls = () => {
     switch (type) {
@@ -41,6 +43,29 @@ const CallList = ({ type }: { type: "upcoming" | "ended" | "recordings" }) => {
     }
   };
 
+  useEffect(() => {
+    const fetchRecordings = async () => {
+      try {
+        const callData = await Promise.all(
+          callsRecordings.map((meeting) => meeting.queryRecordings())
+        );
+
+        // [["rec1","rec2"],["rec3"]]
+        // ["rec1","rec2","rec3"]
+
+        const recordings = callData
+          .filter((call) => call.recordings.length > 0)
+          .flatMap((call) => call.recordings);
+
+        setRecordings(recordings);
+      } catch (error) {
+        toast({ title: "Try Again Later" });
+      }
+    };
+
+    if (type === "recordings") fetchRecordings();
+  }, [type, callsRecordings]);
+
   const calls = getCalls();
   const noCallsMessage = getNoCallsMessage();
 
@@ -51,14 +76,15 @@ const CallList = ({ type }: { type: "upcoming" | "ended" | "recordings" }) => {
       {calls && calls.length > 0 ? (
         calls.map((meeting: Call | CallRecording) => (
           <MeetingCard
-            key={(meeting as Call).id}
+            key={(meeting as Call).id || meeting?.url}
             title={
               (meeting as Call)?.state?.custom?.description?.substring(0, 20) ||
+              meeting?.filename?.substring(0, 20) ||
               "No Description"
             }
             date={
-              meeting.state.startsAt.toLocaleString() ||
-              meeting.start_time.toLocaleString()
+              meeting?.state?.startsAt?.toLocaleString() ||
+              new Date(meeting?.start_time)?.toLocaleString()
             }
             icon={
               type === "ended"
