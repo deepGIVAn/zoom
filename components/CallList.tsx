@@ -80,7 +80,7 @@ const CallList = ({ type }: { type: "upcoming" | "ended" | "recordings" }) => {
             title={
               (meeting as Call)?.state?.custom?.description?.substring(0, 20) ||
               meeting?.filename?.substring(0, 20) ||
-              "No Description"
+              "Personal Meeting"
             }
             date={
               meeting?.state?.startsAt?.toLocaleString() ||
